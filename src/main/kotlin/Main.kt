@@ -20,14 +20,6 @@ fun generateWeights(number_distrobutions: Int): MutableList<Double> {
     return weights
 }
 
-fun getstdev(data: MutableList<Double>): Double {
-    val average = data.average()
-    var sum = 0.0
-    val out = data.forEach { sum = sum +(it -average).pow(2) }
-    sum = sqrt((sum / data.size))
-    return sum
-}
-
 fun pdf(data: MutableList<Double>, mean: Double, variance: Double): MutableList<Double> {
     val s1 = 1/(sqrt(6.283 * variance))
     val temp = mutableListOf<Double>()
@@ -37,7 +29,7 @@ fun pdf(data: MutableList<Double>, mean: Double, variance: Double): MutableList<
         return temp
     }
 
-fun returnliklyhood(likelihood: MutableList<MutableList<Double>>, number_distrobutions: Int, loop_number: Int, samples: MutableList<Double>,
+fun returnliklyhood(likelihood: MutableList<MutableList<Double>>, loop_number: Int, samples: MutableList<Double>,
                     means: MutableList<Double>, variances: MutableList<Double>): MutableList<MutableList<Double>> {
     /**
      * This function takes a list of list where the depth of the list is the number of distributions and the
@@ -84,8 +76,8 @@ fun calculateB(number_distrobutions: Int, numberPoints: Int, loop_number: Int, w
 
 fun main(args: Array<String>) {
     // Inital parameters
-    val numberPoints = 3
-    val SampleMeans = mutableListOf<Double>(5.0, 10.0, 15.0)
+    val numberPoints = 1000
+    val SampleMeans = mutableListOf<Double>(5.0, 20.0, 35.0)
     val SampleVariances = mutableListOf<Double>(1.0, 1.0, 1.0)
     val number_distrobutions = 3
 
@@ -107,18 +99,18 @@ fun main(args: Array<String>) {
 
     // Inital set up of likely hoods
     var likelyhood = generateliklyhood(number_distrobutions, numberPoints)
-    var b = MutableList(0) { mutableListOf<Double>() }
+    val b = MutableList(0) { mutableListOf<Double>() }
     b.add(MutableList(numberPoints * number_distrobutions) { 0.0 })
     b.add(MutableList(numberPoints * number_distrobutions) { 0.0 })
     b.add(MutableList(numberPoints * number_distrobutions) { 0.0 })
 //    println(b)
 
-for (i in 0 until 100) {
+for (i in 0 until 10000) {
     for (current_loop in 0 until 3) {
         //   val current_loop = 0
 
         // calculate the likely hoods
-        likelyhood = returnliklyhood(likelyhood, number_distrobutions, current_loop, samples, means, variances)
+        likelyhood = returnliklyhood(likelyhood, current_loop, samples, means, variances)
 
         // calculate B
         val b = calculateB(number_distrobutions, numberPoints, current_loop, weights, likelyhood, b)
@@ -139,14 +131,8 @@ for (i in 0 until 100) {
 
 // update weight
         weights[current_loop] = b[current_loop].average()
-
-
+        }
     }
-}
-    println(b)
     println(variances)
     println(means)
 }
-//
-////    }
-////}
